@@ -10,9 +10,6 @@ export class APISync<T extends HasID> {
 
   fetch(id: number): AxiosPromise {
     return axios.get(`${this.rootURL}/${id}`);
-    // .then((response: AxiosResponse): void => {
-    //   this.set(response.data);
-    // });
   }
 
   save(data: T): AxiosPromise {

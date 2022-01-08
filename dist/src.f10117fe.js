@@ -2278,9 +2278,7 @@ function () {
   }
 
   APISync.prototype.fetch = function (id) {
-    return axios_1.default.get("".concat(this.rootURL, "/").concat(id)); // .then((response: AxiosResponse): void => {
-    //   this.set(response.data);
-    // });
+    return axios_1.default.get("".concat(this.rootURL, "/").concat(id));
   };
 
   APISync.prototype.save = function (data) {
@@ -2425,7 +2423,65 @@ function () {
 }();
 
 exports.Model = Model;
-},{}],"src/models/User.ts":[function(require,module,exports) {
+},{}],"src/models/Collection.ts":[function(require,module,exports) {
+"use strict";
+
+var __importDefault = this && this.__importDefault || function (mod) {
+  return mod && mod.__esModule ? mod : {
+    "default": mod
+  };
+};
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Collection = void 0;
+
+var Eventing_1 = require("./Eventing");
+
+var axios_1 = __importDefault(require("axios"));
+
+var Collection =
+/** @class */
+function () {
+  function Collection(rootURL, deserialize) {
+    this.rootURL = rootURL;
+    this.deserialize = deserialize;
+    this.models = [];
+    this.events = new Eventing_1.Eventing();
+  }
+
+  Object.defineProperty(Collection.prototype, "on", {
+    get: function get() {
+      return this.events.on;
+    },
+    enumerable: false,
+    configurable: true
+  });
+  Object.defineProperty(Collection.prototype, "trigger", {
+    get: function get() {
+      return this.events.trigger;
+    },
+    enumerable: false,
+    configurable: true
+  });
+
+  Collection.prototype.fetch = function () {
+    var _this = this;
+
+    axios_1.default.get(this.rootURL).then(function (response) {
+      response.data.forEach(function (value) {
+        _this.models.push(_this.deserialize(value));
+      });
+    });
+    this.trigger('change');
+  };
+
+  return Collection;
+}();
+
+exports.Collection = Collection;
+},{"./Eventing":"src/models/Eventing.ts","axios":"node_modules/axios/index.js"}],"src/models/User.ts":[function(require,module,exports) {
 "use strict";
 
 var __extends = this && this.__extends || function () {
@@ -2469,6 +2525,8 @@ var Attributes_1 = require("./Attributes");
 
 var Model_1 = require("./Model");
 
+var Collection_1 = require("./Collection");
+
 var rootURL = "http://localhost:3000/users";
 
 var User =
@@ -2485,15 +2543,21 @@ function (_super) {
     return new User(new Attributes_1.Attributes(attrs), new Eventing_1.Eventing(), new APISync_1.APISync(rootURL));
   };
 
+  User.buildUserCollection = function () {
+    return new Collection_1.Collection(rootURL, function (json) {
+      return User.buildUser(json);
+    });
+  };
+
   User.prototype.isAdminUser = function () {
-    return this.get('id') === 1;
+    return this.get("id") === 1;
   };
 
   return User;
 }(Model_1.Model);
 
 exports.User = User;
-},{"./Eventing":"src/models/Eventing.ts","./APISync":"src/models/APISync.ts","./Attributes":"src/models/Attributes.ts","./Model":"src/models/Model.ts"}],"src/index.ts":[function(require,module,exports) {
+},{"./Eventing":"src/models/Eventing.ts","./APISync":"src/models/APISync.ts","./Attributes":"src/models/Attributes.ts","./Model":"src/models/Model.ts","./Collection":"src/models/Collection.ts"}],"src/index.ts":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -2502,17 +2566,12 @@ Object.defineProperty(exports, "__esModule", {
 
 var User_1 = require("./models/User");
 
-var user = User_1.User.buildUser({
-  name: "Jay",
-  age: 44,
-  id: 1
-});
-user.on("change", function () {
+var collection = User_1.User.buildUserCollection();
+collection.on("change", function () {
   console.log("change");
-  console.log(user);
+  console.log(collection);
 });
-user.get("id");
-user.fetch();
+collection.fetch();
 },{"./models/User":"src/models/User.ts"}],"../../../../AppData/Roaming/npm/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
