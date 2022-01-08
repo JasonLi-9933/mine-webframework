@@ -1,5 +1,5 @@
 import axios, { AxiosPromise } from "axios";
-import { UserProps } from "./User";
+import { UserProps } from "../examples/User";
 
 interface HasID {
 	id?: number;

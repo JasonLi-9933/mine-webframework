@@ -1,8 +1,8 @@
-import { Eventing } from "./Eventing";
-import { APISync } from "./APISync";
-import { Attributes } from "./Attributes";
-import { Model } from "./Model";
-import { Collection } from "./Collection";
+import { Eventing } from "../models/Eventing";
+import { APISync } from "../models/APISync";
+import { Attributes } from "../models/Attributes";
+import { Model } from "../models/Model";
+import { Collection } from "../models/Collection";
 
 export interface UserProps {
   id?: number;
@@ -31,5 +31,10 @@ export class User extends Model<UserProps> {
 
   public isAdminUser(): boolean {
     return this.get("id") === 1;
+  }
+
+  public setRandomAge(): void {
+    const age = Math.round(Math.random() * 100);
+    this.set({age});
   }
 }
